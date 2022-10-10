@@ -31,6 +31,7 @@ And then install `direnv` and exec `direnv allow` in the project root directory.
 
 ```
 $ cp .envrc.example .envrc
+$ direnv allow
 ```
 
 For CI/CD, set the above environment variables to the CI/CD platforms.
