@@ -1,0 +1,1 @@
+enable_point_in_time_recovery_dynamodb = false
