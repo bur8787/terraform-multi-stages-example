@@ -1,28 +1,54 @@
-# Terraform Practice Example
-## Description
-小規模や中規模のサービス向けのterraformの構成例です。
+# Terraform multi-stages example
+This is an example of terraform configuration for small and medium services.
 
-## Case Study
+## Concept
+There are the following assumptions.
+
 1. There are two environments, one for staging and one for production.
 2. Each environment is built on each AWS account
 3. Each resource is nearly identical, but some differ.
 
-## My Thought
-### TL;DR
-For middle projects, it would be better to create another AWS account separated from `production` and `staging` for backend.  
-For small projects, it would be better to use different backend on each AWS account without using workspace.
-
-### Details
-Currently, there is no support to separate backend configurations for each workspace
+In this case, without workspace, it would be better to use different backend on each AWS account.  
+The reason is that there is currently no support to separate backend configurations for each workspace
 https://github.com/hashicorp/terraform/issues/16627
 
-`tfstate` should be stored in each AWS account or use another AWS account instead of staging and production.
+## How to use
+### Set environment variables
+Generate AWS credentials from the both environments `stage` and `production`.
 
-Normally, when using workspace to separate environments, the same backend is used, but we don't want to do that this time. It is not desirable to have the production `tfstate` disappear if the AWS account for the staging environment is accidentally deleted.
-On the other hand, we do not want to put the `tfstate` of the staging environment in the production environment, nor do we want only the bare minimum to happen in the production environment.
+You need to set these variables for staging.
+- STAGE_AWS_ACCESS_KEY_ID
+- STAGE_AWS_SECRET_ACCESS_KEY
 
-Therefore, for middle projects, I think a good move would be to create another AWS account.
-For smaller projects, it seems a bit overkill.
+You need to set these variables for production.
+- PROD_AWS_ACCESS_KEY_ID
+- PROD_AWS_SECRET_ACCESS_KEY
+
+How it is set up differs between local and CI/CD
+
+For local, create `.envrc` from `.envrc.example`.  
+And then install `direnv` and exec `direnv allow` in the project root directory.
+
+```
+$ cp .envrc.example .envrc
+```
+
+For CI/CD, set the above environment variables to the CI/CD platforms.
+
+### Init, Plan, Apply(auto approve)
+For staging:
+```
+$ make tf-stage-init
+$ make tf-stage-plan
+$ make tf-stage-apply-auto
+```
+
+For production:
+```
+$ make tf-prod-init
+$ make tf-prod-plan
+$ make tf-prod-apply-auto
+```
 
 ## Tips
 ### Manage multiple Terraform versions locally
@@ -42,3 +68,4 @@ https://github.com/tfutils/tfenv
 - https://www.hashicorp.com/blog/terraform-mono-repo-vs-multi-repo-the-great-debate
 - https://spacelift.io/blog/terraform-best-practices
 - https://github.com/hashicorp/terraform/issues/15966
+- https://github.com/antonbabenko/terraform-best-practices
